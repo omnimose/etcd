@@ -3,7 +3,7 @@
 This doc tries to use the etcd raft (https://github.com/coreos/etcd/tree/master/raft) example application (raftexample at contrib/raftexample) to explain how the etcd raft algorithm works. Comparing with Paxos, raft tries to build a distributed consensus algorithm that is easier to understand. If you have not done so before, it is suggested to read the original raft paper "In Search of an Understandable Consensus Algorithm"
 (https://ramcloud.stanford.edu/raft.pdf) and the raft Ph.D. dissertation (https://ramcloud.stanford.edu/~ongaro/thesis.pdf) to get yourself familiar with the raft algorithm. In addition to these articles, I found this video (https://www.youtube.com/watch?v=YbZ3zDzDnrw) is one of the best that explains how raft works.
 
-## Contents:
+## Contents
 
 1\. [Log replication](#log-replication)
 
@@ -762,7 +762,7 @@ func (r *raft) tickHeartbeat() {
 }
 ```
 
-The leader's heartbeatTimeout should be smaller than the follower's electionTimeout, in the raft example application, their values are from Config.HeartbeatTick and Config.ElectionTick respectively. Since ticker fires every 100 milliseconds, it means that the leader sends heart msgs to the follower every 100 milliseconds, and if a follower does not hear from a leader in about 1 seconds, it may start a new election:
+The leader's heartbeatTimeout should be smaller than the follower's electionTimeout, in the raft example application, their values are from Config.HeartbeatTick and Config.ElectionTick respectively. Since ticker fires every 100 milliseconds, it means that the leader sends heart msgs to the follower every 100 milliseconds, and if a follower does not hear from a leader in more than 1 seconds, it may start a new election (to be accurate, iff electionElapsed is greater than or equal to the randomized election timeout in [electiontimeout, 2 * electiontimeout - 1], see function raft.resetRandomizedElectionTimeout and raft.pastElectionTimeout for details):
 
 ```go
 c := &raft.Config{
